@@ -271,3 +271,106 @@
   background: color-mix(in srgb, var(--color-status-closed) 30%, transparent);
   color: var(--color-text-muted);
 }
+
+/* AI estimate modal (during job create) – fade-in */
+.ai-estimate-modal-card {
+  animation: ai-estimate-modal-in 0.25s ease-out forwards;
+}
+
+@keyframes ai-estimate-modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* AI estimate price badge – snake along box shape, then static border; label always visible */
+.ai-estimate-price-wrap {
+  position: relative;
+  padding: 4px;
+  border-radius: 14px;
+  display: inline-block;
+}
+
+/* Short one-time entrance animation when we land on job page after creating (AI-estimated price) */
+.ai-estimate-price-entrance {
+  animation: ai-estimate-entrance 0.45s ease-out 1 both;
+}
+
+/* Static amber border when snake is done (after 5s) */
+.ai-estimate-price-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 4px;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.ai-estimate-price-wrap.animate-snake::before {
+  background: transparent;
+}
+
+.ai-estimate-price-wrap.snake-done::before {
+  background: #fcd34d;
+}
+
+/* SVG snake: follows the box (rounded rect) path; only visible while .animate-snake, removed after 5s */
+.ai-estimate-snake-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Full track: gradient visible all around the box */
+.ai-estimate-snake-track {
+  stroke-width: 3;
+  stroke-linecap: round;
+  opacity: 0.65;
+}
+
+/* Moving snake segment: vivid gradient, follows the box path */
+.ai-estimate-snake-path {
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 22 78;
+  animation: snake-box-path 1.4s linear infinite;
+}
+
+@keyframes ai-estimate-entrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4);
+  }
+  60% {
+    transform: scale(1.06);
+    box-shadow: 0 0 20px 3px rgba(217, 119, 6, 0.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+  }
+}
+
+/* Snake segment travels around the box path (pathLength=100); 0→100 = one lap */
+@keyframes snake-box-path {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 100;
+  }
+}

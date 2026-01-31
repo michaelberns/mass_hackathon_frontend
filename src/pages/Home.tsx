@@ -100,7 +100,7 @@ export const Home = () => {
             Connect People with Workers
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-slate-200 mb-1 sm:mb-2 max-w-xl">
-            WTT brings together homeowners and skilled tradespeople—so every repair,
+            WTT brings together homeowners and skilled tradespeople, so every repair,
             renovation, and project finds the right hands.
           </p>
           <p className="text-slate-300 text-sm sm:text-base mb-6 sm:mb-8 max-w-xl">
@@ -114,26 +114,36 @@ export const Home = () => {
             >
               Browse Jobs
             </Link>
-            <Link
-              to="/jobs/new"
-              className="min-h-[44px] inline-flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-accent text-text-inverse rounded-xl hover:bg-accent-hover font-semibold border border-accent/80 shadow-lg hover:shadow-accent/30 active:scale-[0.98] transition-all duration-300"
-            >
-              Create Job
-            </Link>
+            {currentUser?.role === 'client' && (
+              <Link
+                to="/jobs/new"
+                className="min-h-[44px] inline-flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-accent text-text-inverse rounded-xl hover:bg-accent-hover font-semibold border border-accent/80 shadow-lg hover:shadow-accent/30 active:scale-[0.98] transition-all duration-300"
+              >
+                Create Job
+              </Link>
+            )}
           </div>
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto relative">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-text mb-3">
+        <div className="mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-text mb-4 text-center">
             How it works
           </h2>
-          <p className="text-text-muted max-w-2xl mx-auto">
-            Whether you need a plumber, electrician, carpenter, or handyman—or you’re a skilled
-            worker looking for your next job—WTT makes it easy to connect, agree on a
-            price, and get the work done.
-          </p>
+          <div className="max-w-3xl mx-auto text-center space-y-4">
+            <p className="text-text-muted text-base md:text-lg leading-relaxed">
+              Post your job by telling us what you need help with, adding a short description,
+              setting your location, and uploading photos or a video. Local workers will review
+              your job and send you offers with their price and a short message, so you can
+              compare profiles, experience, and reviews before choosing the right person.
+            </p>
+            <p className="text-text-muted text-base md:text-lg leading-relaxed">
+              Once you’ve picked the offer you like, you can sort out the details, reserve the
+              job, and when the work is finished, close it with one click for a simple, fast,
+              and stress-free experience.
+            </p>
+          </div>
         </div>
 
         <div className="mt-10 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
@@ -150,19 +160,21 @@ export const Home = () => {
               Browse Jobs →
             </span>
           </Link>
-          <Link
-            to="/jobs/new"
-            className="card-lift block bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
-          >
-            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🤝</div>
-            <h3 className="text-lg sm:text-xl font-semibold mb-2">Create Job</h3>
-            <p className="text-gray-600">
-              Post a job with title, description, location, budget, and media URLs.
-            </p>
-            <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
-              Create Job →
-            </span>
-          </Link>
+          {currentUser?.role === 'client' && (
+            <Link
+              to="/jobs/new"
+              className="card-lift block bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+            >
+              <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🤝</div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2">Create Job</h3>
+              <p className="text-gray-600">
+                Post a job with title, description, location, budget, and media URLs.
+              </p>
+              <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+                Create Job →
+              </span>
+            </Link>
+          )}
           {!currentUser ? (
             <Link
               to="/sign-in"

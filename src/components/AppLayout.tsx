@@ -58,12 +58,14 @@ export function AppLayout({ children }: AppLayoutProps) {
               >
                 Map
               </Link>
-              <Link
-                to="/jobs/new"
-                className="px-3 py-2 text-text-muted hover:text-link font-medium text-sm transition-colors"
-              >
-                Create Job
-              </Link>
+              {currentUser?.role === 'client' && (
+                <Link
+                  to="/jobs/new"
+                  className="px-3 py-2 text-text-muted hover:text-link font-medium text-sm transition-colors"
+                >
+                  Create Job
+                </Link>
+              )}
               {currentUser ? (
                 <div className="flex items-center gap-2">
                   <div
@@ -184,13 +186,15 @@ export function AppLayout({ children }: AppLayoutProps) {
               >
                 Map
               </Link>
-              <Link
-                to="/jobs/new"
-                className="px-4 py-3 rounded-lg text-text hover:bg-gray-100 font-medium min-h-[44px] flex items-center"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Create Job
-              </Link>
+              {currentUser?.role === 'client' && (
+                <Link
+                  to="/jobs/new"
+                  className="px-4 py-3 rounded-lg text-text hover:bg-gray-100 font-medium min-h-[44px] flex items-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Create Job
+                </Link>
+              )}
               {currentUser && (
                 <>
                   <Link

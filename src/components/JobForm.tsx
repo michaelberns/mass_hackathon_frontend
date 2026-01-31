@@ -173,6 +173,25 @@ export function JobForm({
   const isDisabled = isSubmitting || isUploading || isEstimating;
 
   return (
+    <>
+      {/* AI estimating overlay: popped-out modal with clear message and modern spinner */}
+      {isEstimating && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="relative rounded-2xl bg-white shadow-2xl border border-gray-100 p-8 sm:p-10 max-w-sm w-full text-center ai-estimate-modal-card">
+            <div className="mx-auto w-20 h-20 rounded-full border-4 border-gray-100 border-t-amber-500 border-r-purple-500 border-b-blue-500 border-l-emerald-500 animate-spin mb-6" aria-hidden />
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              AI is estimating your price
+            </h3>
+            <p className="text-sm text-gray-500 mb-1">
+              Our AI is analysing your description and images to suggest a fair price.
+            </p>
+            <p className="text-xs text-gray-400">
+              This usually takes a few seconds…
+            </p>
+          </div>
+        </div>
+      )}
+
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -324,5 +343,6 @@ export function JobForm({
         </button>
       </div>
     </form>
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import type { Job, Offer, User } from '../types';
 import {
@@ -35,7 +35,11 @@ export const JobDetails = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  const message = (location.state as { message?: string } | null)?.message ?? null;
+  const routeState = location.state as { message?: string; aiEstimatedPrice?: boolean } | null;
+  const message = routeState?.message ?? null;
+  const showAiEstimateBadge = routeState?.aiEstimatedPrice === true;
+  const [snakeAnimationActive, setSnakeAnimationActive] = useState(() => routeState?.aiEstimatedPrice === true);
+  const snakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const allImages = job?.images ?? [];
   const openLightbox = (index: number) => setLightboxIndex(index);
@@ -54,6 +58,23 @@ export const JobDetails = () => {
     if (!id) return;
     getOffersForJob(id).then(setOffers).catch(() => setOffers([]));
   }, [id]);
+
+  /* Stop snake animation after 5 seconds when we land with AI-estimated price */
+  useEffect(() => {
+    if (!showAiEstimateBadge) return;
+    setSnakeAnimationActive(true);
+    if (snakeTimeoutRef.current) clearTimeout(snakeTimeoutRef.current);
+    snakeTimeoutRef.current = setTimeout(() => {
+      setSnakeAnimationActive(false);
+      snakeTimeoutRef.current = null;
+    }, 5000);
+    return () => {
+      if (snakeTimeoutRef.current) {
+        clearTimeout(snakeTimeoutRef.current);
+        snakeTimeoutRef.current = null;
+      }
+    };
+  }, [showAiEstimateBadge]);
 
   useEffect(() => {
     if (lightboxIndex == null) return;
@@ -277,8 +298,59 @@ export const JobDetails = () => {
                   {job.status === 'closed' || job.status === 'completed' ? '✓ Closed' : job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </span>
               </div>
-<div className="text-xl sm:text-2xl font-bold text-blue-600 shrink-0">${job.budget}</div>
+<div className="shrink-0" key={showAiEstimateBadge ? `price-ai-${job.id}` : `price-${job.id}`}>
+                {showAiEstimateBadge ? (
+                  <div
+                    className={`ai-estimate-price-wrap ai-estimate-price-entrance ${snakeAnimationActive ? 'animate-snake' : 'snake-done'}`}
+                  >
+                    {snakeAnimationActive && (
+                      <svg
+                        className="ai-estimate-snake-svg"
+                        viewBox="0 0 100 60"
+                        preserveAspectRatio="none"
+                        fill="none"
+                      >
+                        <defs>
+                          <linearGradient id="snake-track-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#f59e0b" />
+                            <stop offset="25%" stopColor="#a855f7" />
+                            <stop offset="50%" stopColor="#3b82f6" />
+                            <stop offset="75%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#f59e0b" />
+                          </linearGradient>
+                          <linearGradient id="snake-head-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#fbbf24" />
+                            <stop offset="50%" stopColor="#c084fc" />
+                            <stop offset="100%" stopColor="#38bdf8" />
+                          </linearGradient>
+                        </defs>
+                        <path
+                          className="ai-estimate-snake-track"
+                          d="M 14,0 H 86 Q 100,0 100,14 V 46 Q 100,60 86,60 H 14 Q 0,60 0,46 V 14 Q 0,0 14,0"
+                          pathLength="100"
+                          stroke="url(#snake-track-gradient)"
+                        />
+                        <path
+                          className="ai-estimate-snake-path"
+                          d="M 14,0 H 86 Q 100,0 100,14 V 46 Q 100,60 86,60 H 14 Q 0,60 0,46 V 14 Q 0,0 14,0"
+                          pathLength="100"
+                          stroke="url(#snake-head-gradient)"
+                        />
+                      </svg>
+                    )}
+                    <div className="rounded-lg bg-white px-3 py-2 relative z-10">
+                      <span className="text-xl sm:text-2xl font-bold text-gray-900">${job.budget}</span>
+                      <p className="text-[11px] text-amber-600 mt-1 opacity-90">AI estimate</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <span className="text-xl sm:text-2xl font-bold text-blue-600">${job.budget}</span>
+                    <p className="text-[11px] text-amber-600 mt-1 opacity-90">AI estimate</p>
+                  </div>
+                )}
               </div>
+            </div>
 
             {/* Job Creator */}
             {jobCreator && (

@@ -6,8 +6,10 @@ import type { Job } from '../types';
 import { getJobs } from '../services/api';
 import { AppLayout } from '../components/AppLayout';
 import { useJobFilters } from '../hooks/useJobFilters';
+import { useUser } from '../context/UserContext';
 
 export const BrowseJobs = () => {
+  const { currentUser } = useUser();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [initialLoad, setInitialLoad] = useState(true);
@@ -124,14 +126,14 @@ export const BrowseJobs = () => {
             >
               Clear Filters
             </button>
-          ) : (
+          ) : currentUser?.role === 'client' ? (
             <Link
               to="/jobs/new"
               className="inline-block px-4 py-2 bg-accent text-text-inverse rounded-lg hover:bg-accent-hover font-medium transition-colors"
             >
               Create a Job
             </Link>
-          )}
+          ) : null}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

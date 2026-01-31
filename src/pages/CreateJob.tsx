@@ -17,7 +17,7 @@ export const CreateJob = () => {
       ...data,
       createdBy: currentUser.id,
     });
-    navigate(`/jobs/${job.id}`, { state: { message: 'Job created successfully.' } });
+    navigate(`/jobs/${job.id}`, { state: { message: 'Job created successfully.', aiEstimatedPrice: true } });
   };
 
   return (

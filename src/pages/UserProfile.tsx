@@ -151,18 +151,13 @@ export const UserProfile = () => {
 
   const isOwnProfile = currentUser?.id === user.id;
 
-  // Client contact (email) is hidden when: not logged in viewing a client, or labour viewing client who hasn't accepted
+  // Client contact (email/phone) is hidden when: not logged in viewing a client, or labour viewing client who hasn't accepted
   const isViewingClientProfile = user.role === 'client' && !isOwnProfile;
-  const isLabourViewingClient =
-    currentUser?.role === 'labour' && user.role === 'client' && !isOwnProfile;
   const clientAcceptedLabourerOffer =
     viewerWorkingOnJobs?.some((j) => j.createdBy === user.id) ?? false;
   const canShowClientContact =
     !isViewingClientProfile ||
     (!!currentUser && (isOwnProfile || currentUser.role !== 'labour' || clientAcceptedLabourerOffer));
-
-  // Phone: same visibility as email (own profile, non-client view, or client accepted labourer's offer)
-  const canShowPhone = canShowClientContact;
 
   return (
     <AppLayout>
