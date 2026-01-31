@@ -1,265 +1,472 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import type { Job } from '../types';
-import { mockDataService } from '../services/mockDataService';
-import { MakeOfferModal } from '../components/MakeOfferModal';
+import { useEffect, useState, useCallback } from 'react';
+import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
+import type { Job, Offer, User } from '../types';
+import {
+  getJob,
+  getUser,
+  getOffersForJob,
+  createOffer,
+  acceptOffer,
+  rejectOffer,
+  deleteJob,
+} from '../services/api';
+import { useUser } from '../context/UserContext';
+import { AppLayout } from '../components/AppLayout';
+import { OfferForm } from '../components/OfferForm';
+import { OfferList } from '../components/OfferList';
+import { GoogleMapWrapper } from '../components/GoogleMapWrapper';
+import { JobCloseActions } from '../components/JobCloseActions';
+import { removeHouseNumber } from '../utils/addressUtils';
 
 export const JobDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser, canEditJob, canDeleteJob, canManageOffers, canCreateOffer } =
+    useUser();
   const [job, setJob] = useState<Job | null>(null);
+  const [jobCreator, setJobCreator] = useState<User | null>(null);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showOfferModal, setShowOfferModal] = useState(false);
-  const [accepting, setAccepting] = useState(false);
+  const [acceptLoading, setAcceptLoading] = useState<string | null>(null);
+  const [rejectLoading, setRejectLoading] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    const fetchJob = async () => {
-      if (!id) return;
+  const message = (location.state as { message?: string } | null)?.message ?? null;
 
-      try {
-        setLoading(true);
-        const fetchedJob = await mockDataService.getJobById(id);
-        if (fetchedJob) {
-          setJob(fetchedJob);
-        } else {
-          setError('Job not found');
-        }
-      } catch (err) {
-        setError('Failed to load job details.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const allImages = job?.images ?? [];
+  const openLightbox = (index: number) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
+  const goPrev = () =>
+    setLightboxIndex((i) => (i != null && i > 0 ? i - 1 : allImages.length - 1));
+  const goNext = () =>
+    setLightboxIndex((i) => (i != null && i < allImages.length - 1 ? i + 1 : 0));
 
-    fetchJob();
+  const refreshJob = useCallback(() => {
+    if (!id) return;
+    getJob(id).then(setJob).catch(() => {});
   }, [id]);
 
-  const handleAcceptJob = async () => {
-    if (!job || !id) return;
+  const refreshOffers = useCallback(() => {
+    if (!id) return;
+    getOffersForJob(id).then(setOffers).catch(() => setOffers([]));
+  }, [id]);
 
-    if (window.confirm('Are you sure you want to accept this job?')) {
-      try {
-        setAccepting(true);
-        const updatedJob = await mockDataService.acceptJob(id, 'worker-1'); // Mock worker ID
-        setJob(updatedJob);
-        alert('Job accepted successfully!');
-      } catch (err) {
-        alert('Failed to accept job. Please try again.');
-        console.error(err);
-      } finally {
-        setAccepting(false);
+  useEffect(() => {
+    if (lightboxIndex == null) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goPrev();
       }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goNext();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [lightboxIndex]);
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    setLoading(true);
+    Promise.all([getJob(id), getOffersForJob(id)])
+      .then(([j, o]) => {
+        if (!cancelled) {
+          setJob(j);
+          setOffers(o);
+          if (j?.createdBy) {
+            getUser(j.createdBy)
+              .then((u) => { if (!cancelled) setJobCreator(u); })
+              .catch(() => { if (!cancelled) setJobCreator(null); });
+          } else {
+            setJobCreator(null);
+          }
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Failed to load job');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [id]);
+
+  const handleMakeOffer = async (proposedPrice: number, message: string) => {
+    if (!id || !currentUser) return;
+    await createOffer(id, { userId: currentUser.id, proposedPrice, message });
+    refreshOffers();
+  };
+
+  const handleJobMapLoad = useCallback((map: google.maps.Map) => {
+    if (!job || typeof job.latitude !== 'number' || typeof job.longitude !== 'number') return;
+    if (typeof google === 'undefined') return;
+
+    const position = new google.maps.LatLng(job.latitude, job.longitude);
+    map.setCenter(position);
+    map.setZoom(15);
+
+    const useAdvancedMarkers =
+      google.maps.marker && typeof google.maps.marker.AdvancedMarkerElement === 'function';
+
+    if (useAdvancedMarkers) {
+      new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position,
+        title: job.title,
+      });
+    } else {
+      new google.maps.Marker({
+        map,
+        position,
+        title: job.title,
+      });
+    }
+  }, [job]);
+
+  const handleAcceptOffer = async (offerId: string) => {
+    if (!currentUser) return;
+    setAcceptLoading(offerId);
+    try {
+      await acceptOffer(offerId, currentUser.id);
+      refreshJob();
+      refreshOffers();
+    } finally {
+      setAcceptLoading(null);
     }
   };
 
-  const handleMakeOffer = async (proposedPrice: number, message: string) => {
-    if (!job || !id) return;
-
+  const handleRejectOffer = async (offerId: string) => {
+    if (!currentUser) return;
+    setRejectLoading(offerId);
     try {
-      await mockDataService.createOffer({
-        jobId: id,
-        proposedPrice,
-        message,
-      });
-      alert('Offer submitted successfully!');
+      await rejectOffer(offerId, currentUser.id);
+      refreshOffers();
+    } finally {
+      setRejectLoading(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id || !currentUser || !job) return;
+    if (!window.confirm('Are you sure you want to delete this job?')) return;
+    setDeleteLoading(true);
+    try {
+      await deleteJob(id, currentUser.id);
+      navigate('/jobs', { state: { message: 'Job deleted.' } });
     } catch (err) {
-      alert('Failed to submit offer. Please try again.');
-      console.error(err);
-      throw err;
+      setError(err instanceof Error ? err.message : 'Failed to delete job');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading job details...</p>
+      <AppLayout>
+        <div className="min-h-[40vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading job details...</p>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   if (error || !job) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
+      <AppLayout>
+        <div className="text-center py-12">
           <p className="text-red-600 mb-4">{error || 'Job not found'}</p>
           <button
-            onClick={() => navigate('/browse-jobs')}
+            onClick={() => navigate('/jobs')}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Back to Jobs
           </button>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
+  const isCreator = canEditJob(job);
+  const showOfferForm = canCreateOffer() && job.status === 'open' && !isCreator;
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
+    <AppLayout>
+      <div className="max-w-4xl mx-auto">
+        {message && (
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+            {message}
+          </div>
+        )}
+
         <button
-          onClick={() => navigate('/browse-jobs')}
+          onClick={() => navigate('/jobs')}
           className="mb-4 text-blue-600 hover:text-blue-700 font-medium flex items-center"
         >
-          <svg
-            className="w-5 h-5 mr-1"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
+          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back to Jobs
         </button>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Image Gallery */}
           {job.images && job.images.length > 0 && (
-            <div className="w-full h-64 md:h-96 bg-gray-200">
+            <button
+              type="button"
+              onClick={() => openLightbox(0)}
+              className="w-full h-64 md:h-96 bg-gray-200 block text-left cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+            >
               <img
                 src={job.images[0]}
                 alt={job.title}
                 className="w-full h-full object-cover"
               />
-            </div>
+            </button>
           )}
 
           <div className="p-6 md:p-8">
-            {/* Header */}
-            <div className="mb-6">
-              <div className="flex items-start justify-between mb-2">
+            <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+              <div>
                 <h1 className="text-3xl font-bold text-gray-900">{job.title}</h1>
                 <span
-                  className={`px-3 py-1 text-sm font-medium rounded ${
+                  className={`inline-block mt-2 px-3 py-1 text-sm font-medium rounded ${
                     job.status === 'open'
                       ? 'bg-green-100 text-green-800'
-                      : job.status === 'accepted'
+                      : job.status === 'reserved' || job.status === 'accepted'
                       ? 'bg-blue-100 text-blue-800'
+                      : job.status === 'closed' || job.status === 'completed'
+                      ? 'bg-gray-600 text-white'
                       : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+                  {job.status === 'closed' || job.status === 'completed' ? '✓ Closed' : job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </span>
               </div>
-              <div className="text-2xl font-bold text-blue-600 mt-2">
-                ${job.budget}
-              </div>
+              <div className="text-2xl font-bold text-blue-600">${job.budget}</div>
             </div>
 
-            {/* Location */}
-            <div className="mb-6 flex items-center text-gray-600">
-              <svg
-                className="w-5 h-5 mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* Job Creator */}
+            {jobCreator && (
+              <Link
+                to={`/users/${jobCreator.id}`}
+                className="mb-6 flex items-center gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors group"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
+                {jobCreator.avatarUrl ? (
+                  <img
+                    src={jobCreator.avatarUrl}
+                    alt={jobCreator.name}
+                    className="w-12 h-12 rounded-full object-cover border-2 border-gray-300 group-hover:border-blue-500 transition-colors"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-blue-600 group-hover:bg-blue-700 flex items-center justify-center text-white font-bold text-lg border-2 border-gray-300 group-hover:border-blue-500 transition-colors">
+                    {jobCreator.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500 font-medium">Posted by</p>
+                  <p className="text-sm font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                    {jobCreator.name}
+                  </p>
+                  {jobCreator.role && (
+                    <p className="text-xs text-gray-500 capitalize">{jobCreator.role}</p>
+                  )}
+                </div>
+                <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            )}
+
+            <div className="mb-6 flex items-center text-gray-600">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              <span>{job.location}</span>
+              <span>{removeHouseNumber(job.location)}</span>
             </div>
 
-            {/* Description */}
+            {job.createdAt && (
+              <p className="text-gray-500 text-sm mb-6 text-right">
+                Posted on {new Date(job.createdAt).toLocaleString()}
+              </p>
+            )}
+
             <div className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                Description
-              </h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
               <p className="text-gray-700 whitespace-pre-wrap">{job.description}</p>
             </div>
 
-            {/* Image Gallery (if multiple images) */}
+            {/* Interactive Map */}
+            {typeof job.latitude === 'number' && typeof job.longitude === 'number' && (
+              <div className="mb-8 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                <GoogleMapWrapper
+                  onMapLoad={handleJobMapLoad}
+                  className="w-full h-64"
+                />
+              </div>
+            )}
+
             {job.images && job.images.length > 1 && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                  Images
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">Image gallery</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {job.images.slice(1).map((image, index) => (
-                    <img
+                    <button
                       key={index}
-                      src={image}
-                      alt={`${job.title} ${index + 2}`}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
+                      type="button"
+                      onClick={() => openLightbox(index + 1)}
+                      className="text-left rounded-lg overflow-hidden border border-gray-200 hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-zoom-in"
+                    >
+                      <img
+                        src={image}
+                        alt={`${job.title} ${index + 2}`}
+                        className="w-full h-48 object-cover"
+                      />
+                    </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Video */}
+            {/* Image lightbox */}
+            {lightboxIndex != null && allImages.length > 0 && (
+              <div
+                className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-zoom-out"
+                role="dialog"
+                aria-modal="true"
+                aria-label="Image gallery"
+                onClick={closeLightbox}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
+                  className="absolute top-4 right-4 text-white hover:text-gray-300 p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                  aria-label="Close"
+                >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                  aria-label="Previous image"
+                >
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <img
+                  src={allImages[lightboxIndex]}
+                  alt={`${job.title} ${lightboxIndex + 1}`}
+                  className="max-w-full max-h-[90vh] object-contain"
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); goNext(); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                  aria-label="Next image"
+                >
+                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <div
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/90 text-sm pointer-events-none"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {lightboxIndex + 1} / {allImages.length}
+                </div>
+              </div>
+            )}
+
             {job.video && (
               <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
-                  Video
-                </h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-3">Video</h2>
                 <video
                   src={job.video}
                   controls
-                  className="w-full rounded-lg"
+                  className="w-full rounded-lg border border-gray-200"
+                  playsInline
                 />
               </div>
             )}
 
-            {/* Actions */}
-            {job.status === 'open' && (
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                <button
-                  onClick={handleAcceptJob}
-                  disabled={accepting}
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {accepting ? 'Accepting...' : 'Accept Job'}
-                </button>
-                <button
-                  onClick={() => setShowOfferModal(true)}
-                  className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-                >
-                  Make Offer
-                </button>
-              </div>
-            )}
-
-            {job.status === 'accepted' && (
-              <div className="pt-6 border-t border-gray-200">
-                <p className="text-gray-600">
-                  This job has been accepted by a worker.
-                </p>
+            {/* Job Actions Section */}
+            {currentUser && job.status !== 'closed' && (
+              <div className="mb-8 pt-6 border-t border-gray-200">
+                {job.status === 'reserved' ? (
+                  <JobCloseActions
+                    job={job}
+                    currentUser={currentUser}
+                    onJobUpdate={(updated) => setJob(updated)}
+                    extraButtons={
+                      isCreator
+                        ? {
+                            onEdit: () => navigate(`/jobs/${id}/edit`),
+                            onDelete: canDeleteJob(job) ? handleDelete : undefined,
+                            deleteLoading,
+                          }
+                        : undefined
+                    }
+                  />
+                ) : (
+                  isCreator && (
+                    <div className="flex flex-wrap gap-3">
+                      <button
+                        onClick={() => navigate(`/jobs/${id}/edit`)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                      >
+                        Edit Job
+                      </button>
+                      {canDeleteJob(job) && (
+                        <button
+                          onClick={handleDelete}
+                          disabled={deleteLoading}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {deleteLoading ? 'Deleting...' : 'Delete Job'}
+                        </button>
+                      )}
+                    </div>
+                  )
+                )}
               </div>
             )}
           </div>
         </div>
-      </div>
 
-      {/* Make Offer Modal */}
-      {job && (
-        <MakeOfferModal
-          job={job}
-          isOpen={showOfferModal}
-          onClose={() => setShowOfferModal(false)}
-          onSubmit={handleMakeOffer}
-        />
-      )}
-    </div>
+        {/* Offers section */}
+        <div className="mt-8 space-y-6">
+          <OfferList
+            offers={offers}
+            onAccept={canManageOffers(job) ? handleAcceptOffer : undefined}
+            onReject={canManageOffers(job) ? handleRejectOffer : undefined}
+            isCreator={isCreator}
+            acceptLoading={acceptLoading}
+            rejectLoading={rejectLoading}
+          />
+
+          {showOfferForm && (
+            <OfferForm
+              job={job}
+              onSubmit={handleMakeOffer}
+              onSuccess={() => refreshOffers()}
+            />
+          )}
+        </div>
+      </div>
+    </AppLayout>
   );
-};
+}

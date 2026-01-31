@@ -1,91 +1,199 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
+import { AppLayout } from '../components/AppLayout';
+
+import electricianImg from '../assets/images/electrician-1080554_1280.jpg';
+import homeImg from '../assets/images/home-6869863_1280.jpg';
+import plumbingImg from '../assets/images/plumbing-840835_1280.jpg';
+import repairImg from '../assets/images/repair-5004839_1920.jpg';
+import downloadImg from '../assets/images/download.jfif';
+import download1Img from '../assets/images/download (1).jfif';
+
+const BACKGROUND_IMAGES = [
+  electricianImg,
+  homeImg,
+  plumbingImg,
+  repairImg,
+  downloadImg,
+  download1Img,
+];
+
+const SIGNUP_ANIMATION_INTERVAL_MS = 5000;
+const SIGNUP_ANIMATION_DURATION_MS = 1000;
+const BACKGROUND_SLIDE_DURATION_MS = 8000;
 
 export const Home = () => {
+  const { currentUser } = useUser();
+  const [signupBoxAnimating, setSignupBoxAnimating] = useState(false);
+  const [bgIndex, setBgIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentUser) return;
+    const runAnimation = () => {
+      setSignupBoxAnimating(true);
+      const t = setTimeout(() => setSignupBoxAnimating(false), SIGNUP_ANIMATION_DURATION_MS);
+      return () => clearTimeout(t);
+    };
+    runAnimation();
+    const id = setInterval(runAnimation, SIGNUP_ANIMATION_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [currentUser]);
+
+  useEffect(() => {
+    const id = setInterval(
+      () => setBgIndex((i) => (i + 1) % BACKGROUND_IMAGES.length),
+      BACKGROUND_SLIDE_DURATION_MS
+    );
+    return () => clearInterval(id);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="text-2xl font-bold text-blue-600">
-              JobConnect
-            </div>
-            <div className="space-x-4">
-              <Link
-                to="/create-job"
-                className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium"
-              >
-                Create Job
-              </Link>
-              <Link
-                to="/browse-jobs"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-              >
-                Browse Jobs
-              </Link>
-            </div>
+    <AppLayout>
+      {/* Full-bleed hero with moving background */}
+      <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 mb-16 overflow-hidden rounded-b-2xl min-h-[420px] flex items-center">
+        {/* Background image stack with Ken Burns + crossfade */}
+        <div className="absolute inset-0">
+          {BACKGROUND_IMAGES.map((src, i) => (
+            <div
+              key={i}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-[2000ms] ${i === bgIndex ? 'hero-bg-slide' : ''}`}
+              style={{
+                backgroundImage: `url(${src})`,
+                opacity: i === bgIndex ? 1 : 0,
+                zIndex: i === bgIndex ? 1 : 0,
+              }}
+            />
+          ))}
+          {/* Layered overlay: gradient + vignette + edge glow */}
+          <div
+            className="absolute inset-0 z-[2]"
+            style={{
+              background:
+                'linear-gradient(105deg, rgba(15,23,42,0.82) 0%, rgba(30,41,59,0.65) 40%, rgba(51,65,85,0.35) 70%, rgba(59,130,246,0.12) 100%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 z-[2]"
+            style={{
+              background: 'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, rgba(0,0,0,0.4) 100%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 z-[2] pointer-events-none"
+            style={{
+              boxShadow: 'inset 0 0 120px rgba(0,0,0,0.25)',
+            }}
+          />
+          {/* Shimmer line at bottom of hero */}
+          <div className="absolute bottom-0 left-0 right-0 z-[3] h-1 overflow-hidden rounded-b-2xl">
+            <div className="hero-shimmer w-full" />
           </div>
         </div>
-      </nav>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+        {/* Hero content */}
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+          <p className="text-blue-300 text-sm font-semibold uppercase tracking-wider mb-3">
+            Trusted by homeowners & skilled workers
+          </p>
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-5 max-w-2xl leading-tight">
             Connect People with Workers
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-            JobConnect is a social impact platform that helps homeowners and
-            individuals find skilled workers for their projects. Create job
-            requests or browse available opportunities.
+          <p className="text-lg md:text-xl text-slate-200 mb-2 max-w-xl">
+            JobConnect brings together homeowners and skilled tradespeople—so every repair,
+            renovation, and project finds the right hands.
           </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <p className="text-slate-300 mb-8 max-w-xl">
+            Post a job as a client, or sign up as labour to browse opportunities and make offers.
+            Simple, transparent, and built for real work.
+          </p>
+          <div className="flex flex-wrap gap-3">
             <Link
-              to="/create-job"
-              className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-lg shadow-lg hover:shadow-xl transition-shadow"
-            >
-              Create a Job
-            </Link>
-            <Link
-              to="/browse-jobs"
-              className="px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-50 font-semibold text-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-blue-600"
+              to="/jobs"
+              className="px-6 py-3 bg-white text-slate-800 rounded-xl hover:bg-slate-100 font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
             >
               Browse Jobs
             </Link>
-          </div>
-        </div>
-
-        {/* Features Section */}
-        <div className="mt-20 grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="text-4xl mb-4">📋</div>
-            <h3 className="text-xl font-semibold mb-2">Create Job Requests</h3>
-            <p className="text-gray-600">
-              Post your job with details, location, budget, and media. Workers
-              can see and respond to your requests.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="text-4xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold mb-2">Browse Opportunities</h3>
-            <p className="text-gray-600">
-              Workers can browse available jobs, view details, and either
-              accept or make counter-offers.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="text-4xl mb-4">🤝</div>
-            <h3 className="text-xl font-semibold mb-2">Connect & Collaborate</h3>
-            <p className="text-gray-600">
-              Direct communication between job creators and workers with
-              transparent pricing and clear expectations.
-            </p>
+            <Link
+              to="/jobs/new"
+              className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 font-semibold border border-blue-400/50 shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
+            >
+              Create Job
+            </Link>
           </div>
         </div>
       </div>
-    </div>
+
+      <div className="max-w-6xl mx-auto relative">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            How it works
+          </h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Whether you need a plumber, electrician, carpenter, or handyman—or you’re a skilled
+            worker looking for your next job—JobConnect makes it easy to connect, agree on a
+            price, and get the work done.
+          </p>
+        </div>
+
+        <div className="mt-16 grid md:grid-cols-3 gap-8">
+          <Link
+            to="/jobs"
+            className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+          >
+            <div className="text-4xl mb-4">📋</div>
+            <h3 className="text-xl font-semibold mb-2">Browse Jobs</h3>
+            <p className="text-gray-600">
+              View all jobs. As labour, make offers. As creator, accept or reject offers.
+            </p>
+            <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+              Browse Jobs →
+            </span>
+          </Link>
+          <Link
+            to="/jobs/new"
+            className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+          >
+            <div className="text-4xl mb-4">🤝</div>
+            <h3 className="text-xl font-semibold mb-2">Create Job</h3>
+            <p className="text-gray-600">
+              Post a job with title, description, location, budget, and media URLs.
+            </p>
+            <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+              Create Job →
+            </span>
+          </Link>
+          {!currentUser ? (
+            <Link
+              to="/sign-in"
+              className={`card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer ${signupBoxAnimating ? 'signup-box-animate' : ''}`}
+            >
+              <div className="text-4xl mb-4">👤</div>
+              <h3 className="text-xl font-semibold mb-2">Sign in / Sign up</h3>
+              <p className="text-gray-600">
+                Sign in with your name and email, or sign up as client or labour to create jobs or make offers.
+              </p>
+              <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+                Sign in or Sign up →
+              </span>
+            </Link>
+          ) : (
+            <Link
+              to={`/users/${currentUser.id}`}
+              className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+            >
+              <div className="text-4xl mb-4">👤</div>
+              <h3 className="text-xl font-semibold mb-2">Your profile</h3>
+              <p className="text-gray-600">
+                View and edit your profile, see your role, and manage your account.
+              </p>
+              <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+                View profile →
+              </span>
+            </Link>
+          )}
+        </div>
+      </div>
+    </AppLayout>
   );
 };
