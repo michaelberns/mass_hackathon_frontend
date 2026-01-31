@@ -9,6 +9,7 @@ export interface UserFormData {
   avatarUrl?: string;
   location?: string;
   bio?: string;
+  phone?: string;
   skills?: string[];
   yearsOfExperience?: number;
   companyName?: string;
@@ -33,6 +34,7 @@ export function UserForm({
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatarUrl ?? '');
   const [location, setLocation] = useState(initialData?.location ?? '');
   const [bio, setBio] = useState(initialData?.bio ?? '');
+  const [phone, setPhone] = useState(initialData?.phone ?? '');
   const [skills, setSkills] = useState<string[]>(initialData?.skills ?? []);
   const [skillInput, setSkillInput] = useState('');
   const [yearsOfExperience, setYearsOfExperience] = useState<number | ''>(
@@ -78,6 +80,7 @@ export function UserForm({
         data.avatarUrl = avatarUrl.trim() || undefined;
         data.location = location.trim() || undefined;
         data.bio = bio.trim() || undefined;
+        data.phone = phone.trim() || undefined;
         if (role === 'labour') {
           data.skills = skills.length ? skills : undefined;
           data.yearsOfExperience =
@@ -189,6 +192,19 @@ export function UserForm({
                 placeholder="A short intro about you..."
               />
             </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                Phone (optional)
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="+1 234 567 8900"
+              />
+            </div>
             {role === 'labour' && (
               <>
                 <div>
@@ -263,12 +279,12 @@ export function UserForm({
         </>
       )}
 
-      <div className="flex gap-4 pt-4">
+      <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+            className="flex-1 min-h-[44px] px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
           >
             Cancel
           </button>
@@ -276,7 +292,7 @@ export function UserForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 min-h-[44px] px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Saving...' : submitLabel}
         </button>

@@ -52,7 +52,7 @@ export function LocationPicker({ value, onChange, disabled = false }: LocationPi
       marker.setMap(map);
 
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ location: latLng }, (results, status) => {
+      geocoder.geocode({ location: latLng }, (results, _status) => {
         let address = results?.[0]?.formatted_address ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
         address = removeHouseNumber(address);
         onChange({ location: address, latitude: lat, longitude: lng });
@@ -65,7 +65,7 @@ export function LocationPicker({ value, onChange, disabled = false }: LocationPi
       const lat = pos.lat();
       const lng = pos.lng();
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ location: pos }, (results, status) => {
+      geocoder.geocode({ location: pos }, (results, _status) => {
         let address = results?.[0]?.formatted_address ?? `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
         address = removeHouseNumber(address);
         onChange({ location: address, latitude: lat, longitude: lng });

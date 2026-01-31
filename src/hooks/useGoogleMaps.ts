@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 
 const SCRIPT_ID = 'google-maps-script';
 const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? '';
-const MAP_ID = import.meta.env.VITE_GOOGLE_MAP_ID ?? '';
 
 // Always load marker library for Advanced Markers
 const LIBRARIES = 'marker,places';

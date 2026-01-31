@@ -186,7 +186,7 @@ export function JobForm({
       )}
 
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="title" className="block text-sm font-medium text-text mb-1">
           Job Title *
         </label>
         <input
@@ -195,7 +195,7 @@ export function JobForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-colors"
           placeholder="e.g., Garden Cleanup and Landscaping"
         />
       </div>
@@ -210,7 +210,7 @@ export function JobForm({
           onChange={(e) => setDescription(e.target.value)}
           required
           rows={5}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-colors"
           placeholder="Describe the job in detail..."
         />
       </div>
@@ -233,7 +233,7 @@ export function JobForm({
       {/* Budget field - only shown when editing */}
       {initialData && (
         <div>
-          <label htmlFor="budget" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="budget" className="block text-sm font-medium text-text mb-1">
             Budget ($) *
           </label>
           <input
@@ -253,16 +253,16 @@ export function JobForm({
 
       {/* Price estimation notice for new jobs */}
       {!initialData && (
-        <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl">
+        <div className="p-4 bg-accent-muted/30 border-2 border-accent/30 rounded-xl">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg className="w-6 h-6 text-text-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-1">AI-Powered Pricing</h3>
-              <p className="text-sm text-gray-700">
+              <h3 className="font-semibold text-text mb-1">AI-Powered Pricing</h3>
+              <p className="text-sm text-text-muted">
                 The job price will be automatically determined by our AI based on your description and uploaded images when you submit.
               </p>
             </div>
@@ -293,7 +293,7 @@ export function JobForm({
             type="button"
             onClick={onCancel}
             disabled={isDisabled}
-            className="flex-1 px-4 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium disabled:opacity-50"
+            className="flex-1 px-4 py-3 border border-border rounded-lg text-text hover:bg-background-alt font-medium disabled:opacity-50 transition-colors"
           >
             Cancel
           </button>
@@ -301,7 +301,7 @@ export function JobForm({
         <button
           type="submit"
           disabled={isDisabled}
-          className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 px-4 py-3 bg-accent text-text-inverse rounded-lg hover:bg-accent-hover font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
         >
           {isEstimating ? (
             <>

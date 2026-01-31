@@ -3,10 +3,29 @@
  * For full types: npm i -D @types/google.maps
  */
 declare namespace google.maps {
+  const ControlPosition: {
+    TOP_RIGHT: number;
+    TOP_LEFT: number;
+    BOTTOM_LEFT: number;
+    BOTTOM_RIGHT: number;
+    LEFT_CENTER: number;
+    RIGHT_CENTER: number;
+    TOP_CENTER: number;
+    BOTTOM_CENTER: number;
+  };
+
+  interface MVCArray<T> {
+    push(elem: T): number;
+    clear(): void;
+    getArray(): T[];
+  }
+
   class Map {
     constructor(mapDiv: HTMLElement, opts?: MapOptions);
     setCenter(center: LatLngLiteral | LatLng): void;
     setZoom(zoom: number): void;
+    addListener(eventName: string, handler: (e: MapMouseEvent) => void): void;
+    controls: { [position: number]: MVCArray<HTMLElement> };
   }
 
   interface MapOptions {
@@ -40,15 +59,17 @@ declare namespace google.maps {
     constructor(opts?: MarkerOptions);
     setMap(map: Map | null): void;
     getPosition(): LatLng | undefined;
+    setPosition(position: LatLngLiteral | LatLng | null | undefined): void;
     addListener(event: string, handler: () => void): void;
   }
 
   interface MarkerOptions {
     map?: Map;
-    position?: LatLngLiteral | LatLng;
+    position?: LatLngLiteral | LatLng | null;
     title?: string;
     label?: string | object;
     icon?: string | object;
+    draggable?: boolean;
   }
 
   interface MapMouseEvent {

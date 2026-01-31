@@ -73,8 +73,8 @@ export const EditUser = () => {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Profile</h1>
-        <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Edit Profile</h1>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
           <UserForm
             initialData={user}
             onSubmit={handleSubmit}

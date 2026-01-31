@@ -2,10 +2,10 @@
  * API service layer - all HTTP calls to the backend.
  *
  * Base URL (configurable via VITE_API_BASE_URL in .env):
- *   Default: http://localhost:3000/api
+ *   Default: https://mass-hackathon-backend.fly.dev/api
  *
  * Exact requests we send (for saving/fetching data):
- *   Create user:  POST  {BASE_URL}/users     body: { name, email, role }
+ *   Create user:  POST  {BASE_URL}/users     body: { name, email, role, phone? }
  *   Get user:     GET   {BASE_URL}/users/:id
  *   Update user:  PUT   {BASE_URL}/users/:id body: { name?, email?, role? }
  *   Get jobs:     GET   {BASE_URL}/jobs
@@ -18,7 +18,7 @@
  *   Accept offer: POST {BASE_URL}/offers/:id/accept header: X-User-Id
  *   Reject offer: POST {BASE_URL}/offers/:id/reject header: X-User-Id
  */
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3000/api').replace(/\/+$/, '');
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? 'https://mass-hackathon-backend.fly.dev/api').replace(/\/+$/, '');
 
 import type { User, Job, Offer, Notification, UserJobsResponse, JobMapItem, JobFilters } from '../types';
 
@@ -71,6 +71,7 @@ function normalizeUser(raw: unknown, fallback: { name: string; email: string; ro
   if (Array.isArray(user.skills)) base.skills = user.skills.filter((s): s is string => typeof s === 'string');
   if (typeof user.yearsOfExperience === 'number') base.yearsOfExperience = user.yearsOfExperience;
   if (user.companyName != null && typeof user.companyName === 'string') base.companyName = user.companyName;
+  if (user.phone != null && typeof user.phone === 'string') base.phone = user.phone;
   return base;
 }
 
@@ -80,6 +81,7 @@ export async function createUser(data: {
   name: string;
   email: string;
   role: 'client' | 'labour';
+  phone?: string;
 }): Promise<User> {
   let res: Response;
   try {
@@ -186,6 +188,7 @@ export interface UserUpdateData {
   avatarUrl?: string;
   location?: string;
   bio?: string;
+  phone?: string;
   profileCompleted?: boolean;
   skills?: string[];
   yearsOfExperience?: number;
@@ -346,7 +349,13 @@ export async function rejectJobClose(jobId: string, userId: string): Promise<Job
 
 export async function getOffersForJob(jobId: string): Promise<Offer[]> {
   const res = await fetch(`${BASE_URL}/jobs/${jobId}/offers`);
-  return handleResponse<Offer[]>(res);
+  const data = await handleResponse<Offer[]>(res);
+  // Normalize: backend may return userId instead of createdBy
+  if (!Array.isArray(data)) return [];
+  return data.map((o) => ({
+    ...o,
+    createdBy: o.createdBy ?? (o as unknown as { userId?: string }).userId,
+  }));
 }
 
 export async function createOffer(

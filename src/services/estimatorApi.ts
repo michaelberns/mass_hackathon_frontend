@@ -22,12 +22,6 @@ interface EstimatorMessagePart {
   };
 }
 
-interface EstimatorResponse {
-  content?: {
-    parts?: Array<{ text?: string }>;
-  };
-}
-
 /**
  * Create a new estimator session
  */

@@ -49,9 +49,9 @@ export const CreateUser = () => {
           }}
         />
       )}
-      <div className="max-w-xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Sign up</h1>
-        <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+      <div className="max-w-xl mx-auto px-1">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Sign up</h1>
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
           <UserForm
             onSubmit={handleSubmit}
             submitLabel="Sign up"

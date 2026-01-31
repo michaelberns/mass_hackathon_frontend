@@ -2,9 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light theme only – brand palette via CSS variables */
+:root {
+  --color-background: #f8fafc;
+  --color-background-alt: #f1f5f9;
+  --color-card: #ffffff;
+  --color-card-hover: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-border-muted: #cbd5e1;
+  --color-text: #1e3a8a;
+  --color-text-muted: #334155;
+  --color-text-inverse: #ffffff;
+  --color-accent: #d97706;
+  --color-accent-hover: #b45309;
+  --color-accent-muted: #fef3c7;
+  --color-link: #1e3a8a;
+  --color-link-hover: #d97706;
+  --color-nav-bg: rgba(255, 255, 255, 0.92);
+  --color-nav-border: rgba(226, 232, 240, 0.9);
+  --color-button-primary: #d97706;
+  --color-button-primary-hover: #b45309;
+  --color-button-secondary: transparent;
+  --color-button-secondary-hover: #f1f5f9;
+  --color-input-bg: #ffffff;
+  --color-input-border: #e2e8f0;
+  --color-status-open: #166534;
+  --color-status-reserved: #1e3a8a;
+  --color-status-closed: #334155;
+}
+
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   body {
-    @apply text-gray-900 antialiased;
+    @apply antialiased;
+    color: var(--color-text);
+    background-color: var(--color-background);
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -15,7 +51,7 @@
   }
   50% {
     transform: scale(1.02);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 0 0 2px rgb(59 130 246 / 0.4);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1), 0 0 0 2px rgba(217, 119, 6, 0.4);
   }
 }
 
@@ -64,7 +100,7 @@
 
 /* Dot grid overlay */
 .bg-dot-grid {
-  background-image: radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.08) 1px, transparent 0);
+  background-image: radial-gradient(circle at 1px 1px, rgba(30, 58, 138, 0.06) 1px, transparent 0);
   background-size: 32px 32px;
 }
 
@@ -214,10 +250,24 @@
   animation: shimmer-slide 4s ease-in-out infinite;
 }
 
-/* Gradient text accent */
+/* Gradient text accent – brand navy + orange */
 .text-gradient-accent {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+  background: linear-gradient(135deg, #1e3a8a 0%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Status badges – theme-aware */
+.status-badge-open {
+  background: color-mix(in srgb, var(--color-status-open) 20%, transparent);
+  color: var(--color-status-open);
+}
+.status-badge-reserved {
+  background: color-mix(in srgb, var(--color-status-reserved) 20%, transparent);
+  color: var(--color-status-reserved);
+}
+.status-badge-closed {
+  background: color-mix(in srgb, var(--color-status-closed) 30%, transparent);
+  color: var(--color-text-muted);
 }

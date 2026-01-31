@@ -7,8 +7,8 @@ import {
 } from 'react';
 import type { User } from '../types';
 
-const STORAGE_KEY = 'jobconnect_current_user';
-const KNOWN_USERS_KEY = 'jobconnect_known_users';
+const STORAGE_KEY = 'wtt_current_user';
+const KNOWN_USERS_KEY = 'wtt_known_users';
 
 interface UserContextValue {
   currentUser: User | null;

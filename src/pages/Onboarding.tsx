@@ -1,7 +1,7 @@
 import { useState, useCallback, type FormEvent, type KeyboardEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateUser, type UserUpdateData } from '../services/api';
-import type { User, UserRole } from '../types';
+import type { UserRole } from '../types';
 import { AppLayout } from '../components/AppLayout';
 import { AvatarUploader } from '../components/AvatarUploader';
 import { useUser } from '../context/UserContext';
@@ -97,11 +97,12 @@ export const Onboarding = () => {
   if (!currentUser) {
     return (
       <AppLayout>
-        <div className="max-w-xl mx-auto text-center py-12">
-          <p className="text-gray-600 mb-4">Please sign in to complete your profile.</p>
+        <div className="max-w-xl mx-auto text-center py-8 sm:py-12 px-4">
+          <p className="text-gray-600 mb-4 text-sm sm:text-base">Please sign in to complete your profile.</p>
           <button
+            type="button"
             onClick={() => navigate('/sign-in')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="min-h-[44px] px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
           >
             Sign in
           </button>
@@ -170,7 +171,7 @@ export const Onboarding = () => {
                 <button
                   type="button"
                   onClick={handleStep1Next}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                  className="min-h-[44px] px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                 >
                   Next
                 </button>
@@ -316,18 +317,18 @@ export const Onboarding = () => {
                   </>
                 )}
               </dl>
-              <div className="flex justify-between pt-4">
+              <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+                  className="min-h-[44px] px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
                 >
                   Back
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="min-h-[44px] px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'Saving...' : 'Confirm'}
                 </button>

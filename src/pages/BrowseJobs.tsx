@@ -43,8 +43,8 @@ export const BrowseJobs = () => {
       <AppLayout>
         <div className="min-h-[40vh] flex items-center justify-center">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading jobs...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4" />
+            <p className="text-text-muted">Loading jobs...</p>
           </div>
         </div>
       </AppLayout>
@@ -58,7 +58,7 @@ export const BrowseJobs = () => {
           <p className="text-red-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-accent text-text-inverse rounded-lg hover:bg-accent-hover transition-colors"
           >
             Retry
           </button>
@@ -69,9 +69,9 @@ export const BrowseJobs = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Browse Available Jobs</h1>
-        <p className="text-gray-600">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-text mb-1 sm:mb-2">Browse Available Jobs</h1>
+        <p className="text-text-muted text-sm sm:text-base">
           {loading ? 'Loading...' : `${jobs.length} ${jobs.length === 1 ? 'job' : 'jobs'} found`}
         </p>
       </div>
@@ -87,21 +87,21 @@ export const BrowseJobs = () => {
       {loading && !initialLoad ? (
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2" />
-            <p className="text-gray-600 text-sm">Updating...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto mb-2" />
+            <p className="text-text-muted text-sm">Updating...</p>
           </div>
         </div>
       ) : loading ? (
         <div className="flex items-center justify-center py-24">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading jobs...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4" />
+            <p className="text-text-muted">Loading jobs...</p>
           </div>
         </div>
       ) : jobs.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-card rounded-lg shadow-md border border-border p-12 text-center">
           <svg
-            className="mx-auto h-12 w-12 text-gray-400 mb-4"
+            className="mx-auto h-12 w-12 text-text-muted mb-4"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -113,21 +113,21 @@ export const BrowseJobs = () => {
               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
             />
           </svg>
-          <p className="text-gray-600 text-lg mb-2">No jobs found</p>
-          <p className="text-gray-500 text-sm mb-4">
+          <p className="text-text text-lg mb-2">No jobs found</p>
+          <p className="text-text-muted text-sm mb-4">
             {hasActiveFilters ? 'Try adjusting your filters' : 'No jobs available at the moment'}
           </p>
           {hasActiveFilters ? (
             <button
               onClick={clearFilters}
-              className="inline-block px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+              className="inline-block px-4 py-2 bg-background-alt text-text rounded-lg hover:bg-border font-medium transition-colors"
             >
               Clear Filters
             </button>
           ) : (
             <Link
               to="/jobs/new"
-              className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+              className="inline-block px-4 py-2 bg-accent text-text-inverse rounded-lg hover:bg-accent-hover font-medium transition-colors"
             >
               Create a Job
             </Link>

@@ -60,9 +60,9 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
   };
 
   return (
-    <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-md border border-gray-200 overflow-hidden mb-4 transition-all duration-300">
+    <div className="bg-card rounded-xl shadow-md border border-border overflow-hidden mb-4 transition-all duration-300">
       {/* Compact Header - whole bar clickable to expand/collapse */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2.5">
+      <div className="bg-link px-4 py-2.5">
         <div className="flex items-center justify-between gap-2">
           <button
             type="button"
@@ -71,19 +71,19 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
           >
             <div className="flex items-center gap-2 min-w-0">
               <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-text-inverse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
                 </svg>
               </div>
-              <h2 className="text-sm font-bold text-white">Filters</h2>
+              <h2 className="text-sm font-bold text-text-inverse">Filters</h2>
               {hasActiveFilters && (
-                <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs rounded-full font-medium flex-shrink-0">
+                <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-text-inverse text-xs rounded-full font-medium flex-shrink-0">
                   Active
                 </span>
               )}
             </div>
             <svg
-              className={`w-4 h-4 text-white flex-shrink-0 transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
+              className={`w-4 h-4 text-text-inverse flex-shrink-0 transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -98,7 +98,7 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                 e.stopPropagation();
                 onClear();
               }}
-              className="flex items-center gap-1 px-2.5 py-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-lg text-xs font-medium transition-all duration-200 flex-shrink-0"
+              className="flex items-center gap-1 px-2.5 py-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-text-inverse rounded-lg text-xs font-medium transition-all duration-200 flex-shrink-0"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -114,8 +114,8 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
         <div className="p-4">
           {/* Status Segmented Control */}
           <div className="mb-4">
-            <label className="block text-xs font-semibold text-gray-700 mb-2">Job Status</label>
-            <div className="inline-flex bg-gray-100 rounded-lg p-1 w-full">
+            <label className="block text-xs font-semibold text-text mb-2">Job Status</label>
+            <div className="inline-flex flex-wrap sm:flex-nowrap bg-background-alt rounded-lg p-1 w-full gap-0.5 sm:gap-0">
               {(['all', 'open', 'reserved', 'closed'] as const).map((statusOption) => (
                 <button
                   key={statusOption}
@@ -124,10 +124,10 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                     const newFilters = { ...localFilters, status: statusOption };
                     updateFilter(newFilters);
                   }}
-                  className={`flex-1 px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-200 ${
+                  className={`flex-1 min-w-0 min-h-[44px] sm:min-h-0 px-2 sm:px-3 py-2.5 sm:py-1.5 text-xs sm:text-sm font-semibold rounded-md transition-all duration-200 ${
                     (localFilters.status || 'all') === statusOption
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'bg-accent text-text-inverse shadow-md'
+                      : 'text-text-muted hover:text-text'
                   }`}
                 >
                   {statusOption.charAt(0).toUpperCase() + statusOption.slice(1)}
@@ -140,8 +140,8 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
             {/* Price Range - Compact */}
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Min Price</label>
-              <span className="absolute left-2.5 top-[26px] text-gray-400 text-sm">$</span>
+              <label className="block text-xs font-semibold text-text-muted mb-1">Min Price</label>
+              <span className="absolute left-2.5 top-[26px] text-text-muted text-sm">$</span>
               <input
                 type="number"
                 min="0"
@@ -154,12 +154,12 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                     };
                     updateFilter(newFilters);
                   }}
-                className="w-full pl-6 pr-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full pl-6 pr-2 py-2 text-sm bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-all duration-200"
               />
             </div>
             <div className="relative">
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Max Price</label>
-              <span className="absolute left-2.5 top-[26px] text-gray-400 text-sm">$</span>
+              <label className="block text-xs font-semibold text-text-muted mb-1">Max Price</label>
+              <span className="absolute left-2.5 top-[26px] text-text-muted text-sm">$</span>
               <input
                 type="number"
                 min="0"
@@ -172,13 +172,13 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                     };
                     updateFilter(newFilters);
                   }}
-                className="w-full pl-6 pr-2 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full pl-6 pr-2 py-2 text-sm bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-all duration-200"
               />
             </div>
             
             {/* Search */}
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Search</label>
+              <label className="block text-xs font-semibold text-text-muted mb-1">Search</label>
               <input
                 type="text"
                 placeholder="Keywords..."
@@ -187,13 +187,13 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                   const newFilters = { ...localFilters, q: e.target.value || undefined };
                   updateFilter(newFilters);
                 }}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-3 py-2 text-sm bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-all duration-200"
               />
             </div>
 
             {/* Location */}
             <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Location</label>
+              <label className="block text-xs font-semibold text-text-muted mb-1">Location</label>
               <input
                 type="text"
                 placeholder="Area..."
@@ -202,26 +202,27 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                   const newFilters = { ...localFilters, location: e.target.value || undefined };
                   updateFilter(newFilters);
                 }}
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="w-full px-3 py-2 text-sm bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-all duration-200"
               />
             </div>
           </div>
 
           {/* Skills - Compact */}
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-gray-600 mb-1">Skills</label>
-            <div className="flex gap-2">
+            <label className="block text-xs font-semibold text-text-muted mb-1">Skills</label>
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 placeholder="Add skill (press Enter)..."
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
                 onKeyDown={handleSkillKeyDown}
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                className="flex-1 min-w-0 px-3 py-2.5 sm:py-2 text-sm bg-input-bg border border-input-border rounded-lg focus:ring-2 focus:ring-accent focus:border-accent text-text transition-all duration-200"
               />
               <button
+                type="button"
                 onClick={() => handleAddSkill(skillInput)}
-                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg text-sm font-semibold transition-all duration-200"
+                className="px-4 py-2.5 sm:py-2 min-h-[44px] sm:min-h-0 bg-accent text-text-inverse rounded-lg text-sm font-semibold hover:bg-accent-hover transition-all duration-200"
               >
                 Add
               </button>
@@ -231,7 +232,7 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
                 {localFilters.skills.map((skill) => (
                   <span
                     key={skill}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-md text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-accent text-text-inverse rounded-md text-xs font-semibold"
                   >
                     {skill}
                     <button
@@ -254,7 +255,7 @@ export function FilterPanel({ filters, onApply, onClear, hasActiveFilters, autoA
             <div className="flex justify-end">
               <button
                 onClick={() => onApply(localFilters)}
-                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-sm font-bold shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5"
+                className="px-5 py-2 bg-accent text-text-inverse rounded-lg text-sm font-bold shadow-md hover:bg-accent-hover transition-all duration-200 flex items-center gap-1.5"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

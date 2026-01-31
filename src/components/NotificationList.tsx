@@ -14,7 +14,7 @@ export function NotificationList({
   notifications,
   loading,
   onMarkRead,
-  onRefresh,
+  onRefresh: _onRefresh,
 }: NotificationListProps) {
   const navigate = useNavigate();
   const [markingId, setMarkingId] = useState<string | null>(null);

@@ -27,6 +27,7 @@ export const JobDetails = () => {
   const [job, setJob] = useState<Job | null>(null);
   const [jobCreator, setJobCreator] = useState<User | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [offerers, setOfferers] = useState<Record<string, User>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [acceptLoading, setAcceptLoading] = useState<string | null>(null);
@@ -97,6 +98,30 @@ export const JobDetails = () => {
       });
     return () => { cancelled = true; };
   }, [id]);
+
+  // Fetch offerer users so job owner can see who made each offer (avatar + name)
+  useEffect(() => {
+    const creatorId = (o: Offer) => o.createdBy ?? (o as unknown as { userId?: string }).userId;
+    const creatorIds = [...new Set(offers.map(creatorId).filter(Boolean))] as string[];
+    if (creatorIds.length === 0) {
+      setOfferers({});
+      return;
+    }
+    let cancelled = false;
+    const next: Record<string, User> = {};
+    Promise.all(creatorIds.map((uid) => getUser(uid)))
+      .then((users) => {
+        if (cancelled) return;
+        creatorIds.forEach((uid, i) => {
+          if (users[i]) next[uid] = users[i];
+        });
+        setOfferers(next);
+      })
+      .catch(() => {
+        if (!cancelled) setOfferers({});
+      });
+    return () => { cancelled = true; };
+  }, [offers]);
 
   const handleMakeOffer = async (proposedPrice: number, message: string) => {
     if (!id || !currentUser) return;
@@ -201,18 +226,19 @@ export const JobDetails = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto px-0 sm:px-0">
         {message && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+          <div className="mb-4 p-3 sm:p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
             {message}
           </div>
         )}
 
         <button
+          type="button"
           onClick={() => navigate('/jobs')}
-          className="mb-4 text-blue-600 hover:text-blue-700 font-medium flex items-center"
+          className="mb-4 min-h-[44px] inline-flex items-center text-blue-600 hover:text-blue-700 font-medium py-2 -ml-1"
         >
-          <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 mr-1 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Back to Jobs
@@ -223,7 +249,7 @@ export const JobDetails = () => {
             <button
               type="button"
               onClick={() => openLightbox(0)}
-              className="w-full h-64 md:h-96 bg-gray-200 block text-left cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
+              className="w-full h-48 sm:h-64 md:h-96 bg-gray-200 block text-left cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset"
             >
               <img
                 src={job.images[0]}
@@ -251,8 +277,8 @@ export const JobDetails = () => {
                   {job.status === 'closed' || job.status === 'completed' ? '✓ Closed' : job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </span>
               </div>
-              <div className="text-2xl font-bold text-blue-600">${job.budget}</div>
-            </div>
+<div className="text-xl sm:text-2xl font-bold text-blue-600 shrink-0">${job.budget}</div>
+              </div>
 
             {/* Job Creator */}
             {jobCreator && (
@@ -375,10 +401,10 @@ export const JobDetails = () => {
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); goNext(); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
+                  className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white"
                   aria-label="Next image"
                 >
-                  <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -423,18 +449,20 @@ export const JobDetails = () => {
                   />
                 ) : (
                   isCreator && (
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2 sm:gap-3">
                       <button
+                        type="button"
                         onClick={() => navigate(`/jobs/${id}/edit`)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                        className="min-h-[44px] px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
                       >
                         Edit Job
                       </button>
                       {canDeleteJob(job) && (
                         <button
+                          type="button"
                           onClick={handleDelete}
                           disabled={deleteLoading}
-                          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="min-h-[44px] px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {deleteLoading ? 'Deleting...' : 'Delete Job'}
                         </button>
@@ -451,6 +479,7 @@ export const JobDetails = () => {
         <div className="mt-8 space-y-6">
           <OfferList
             offers={offers}
+            offerers={offerers}
             onAccept={canManageOffers(job) ? handleAcceptOffer : undefined}
             onReject={canManageOffers(job) ? handleRejectOffer : undefined}
             isCreator={isCreator}

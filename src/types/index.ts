@@ -14,6 +14,7 @@ export interface User {
   skills?: string[];
   yearsOfExperience?: number;
   companyName?: string;
+  phone?: string;
 }
 
 export interface Job {

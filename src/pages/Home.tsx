@@ -51,7 +51,7 @@ export const Home = () => {
   return (
     <AppLayout>
       {/* Full-bleed hero with moving background */}
-      <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-8 mb-16 overflow-hidden rounded-b-2xl min-h-[420px] flex items-center">
+      <div className="relative -mx-4 sm:-mx-6 lg:-mx-8 -mt-4 sm:-mt-8 mb-10 sm:mb-16 overflow-hidden rounded-b-2xl min-h-[280px] sm:min-h-[360px] md:min-h-[420px] flex items-center">
         {/* Background image stack with Ken Burns + crossfade */}
         <div className="absolute inset-0">
           {BACKGROUND_IMAGES.map((src, i) => (
@@ -92,31 +92,31 @@ export const Home = () => {
         </div>
 
         {/* Hero content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
-          <p className="text-blue-300 text-sm font-semibold uppercase tracking-wider mb-3">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 w-full">
+          <p className="text-blue-300 text-xs sm:text-sm font-semibold uppercase tracking-wider mb-2 sm:mb-3">
             Trusted by homeowners & skilled workers
           </p>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-5 max-w-2xl leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold text-white mb-3 sm:mb-5 max-w-2xl leading-tight">
             Connect People with Workers
           </h1>
-          <p className="text-lg md:text-xl text-slate-200 mb-2 max-w-xl">
-            JobConnect brings together homeowners and skilled tradespeople—so every repair,
+          <p className="text-base sm:text-lg md:text-xl text-slate-200 mb-1 sm:mb-2 max-w-xl">
+            WTT brings together homeowners and skilled tradespeople—so every repair,
             renovation, and project finds the right hands.
           </p>
-          <p className="text-slate-300 mb-8 max-w-xl">
+          <p className="text-slate-300 text-sm sm:text-base mb-6 sm:mb-8 max-w-xl">
             Post a job as a client, or sign up as labour to browse opportunities and make offers.
             Simple, transparent, and built for real work.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <Link
               to="/jobs"
-              className="px-6 py-3 bg-white text-slate-800 rounded-xl hover:bg-slate-100 font-semibold shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+              className="min-h-[44px] inline-flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-slate-800 rounded-xl hover:bg-slate-100 font-semibold shadow-lg hover:shadow-xl active:scale-[0.98] transition-all duration-300"
             >
               Browse Jobs
             </Link>
             <Link
               to="/jobs/new"
-              className="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 font-semibold border border-blue-400/50 shadow-lg hover:shadow-blue-500/30 hover:scale-[1.02] transition-all duration-300"
+              className="min-h-[44px] inline-flex items-center justify-center px-5 sm:px-6 py-2.5 sm:py-3 bg-accent text-text-inverse rounded-xl hover:bg-accent-hover font-semibold border border-accent/80 shadow-lg hover:shadow-accent/30 active:scale-[0.98] transition-all duration-300"
             >
               Create Job
             </Link>
@@ -126,23 +126,23 @@ export const Home = () => {
 
       <div className="max-w-6xl mx-auto relative">
         <div className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+          <h2 className="text-2xl md:text-3xl font-bold text-text mb-3">
             How it works
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-text-muted max-w-2xl mx-auto">
             Whether you need a plumber, electrician, carpenter, or handyman—or you’re a skilled
-            worker looking for your next job—JobConnect makes it easy to connect, agree on a
+            worker looking for your next job—WTT makes it easy to connect, agree on a
             price, and get the work done.
           </p>
         </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
+        <div className="mt-10 sm:mt-16 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
           <Link
             to="/jobs"
-            className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+            className="card-lift block bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
           >
-            <div className="text-4xl mb-4">📋</div>
-            <h3 className="text-xl font-semibold mb-2">Browse Jobs</h3>
+            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">📋</div>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Browse Jobs</h3>
             <p className="text-gray-600">
               View all jobs. As labour, make offers. As creator, accept or reject offers.
             </p>
@@ -152,10 +152,10 @@ export const Home = () => {
           </Link>
           <Link
             to="/jobs/new"
-            className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+            className="card-lift block bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
           >
-            <div className="text-4xl mb-4">🤝</div>
-            <h3 className="text-xl font-semibold mb-2">Create Job</h3>
+            <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">🤝</div>
+            <h3 className="text-lg sm:text-xl font-semibold mb-2">Create Job</h3>
             <p className="text-gray-600">
               Post a job with title, description, location, budget, and media URLs.
             </p>
@@ -166,28 +166,28 @@ export const Home = () => {
           {!currentUser ? (
             <Link
               to="/sign-in"
-              className={`card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer ${signupBoxAnimating ? 'signup-box-animate' : ''}`}
+              className={`card-lift block bg-card p-6 rounded-xl shadow-lg border border-border hover:border-accent/50 cursor-pointer transition-colors ${signupBoxAnimating ? 'signup-box-animate' : ''}`}
             >
               <div className="text-4xl mb-4">👤</div>
-              <h3 className="text-xl font-semibold mb-2">Sign in / Sign up</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-semibold mb-2 text-text">Sign in / Sign up</h3>
+              <p className="text-text-muted">
                 Sign in with your name and email, or sign up as client or labour to create jobs or make offers.
               </p>
-              <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+              <span className="mt-3 inline-block text-link font-medium text-sm hover:text-link-hover transition-colors">
                 Sign in or Sign up →
               </span>
             </Link>
           ) : (
             <Link
               to={`/users/${currentUser.id}`}
-              className="card-lift block bg-white/90 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/60 hover:border-blue-300/60 cursor-pointer"
+              className="card-lift block bg-card p-4 sm:p-6 rounded-xl shadow-lg border border-border hover:border-accent/50 cursor-pointer transition-colors"
             >
-              <div className="text-4xl mb-4">👤</div>
-              <h3 className="text-xl font-semibold mb-2">Your profile</h3>
-              <p className="text-gray-600">
+              <div className="text-3xl sm:text-4xl mb-3 sm:mb-4">👤</div>
+              <h3 className="text-lg sm:text-xl font-semibold mb-2 text-text">Your profile</h3>
+              <p className="text-text-muted">
                 View and edit your profile, see your role, and manage your account.
               </p>
-              <span className="mt-3 inline-block text-blue-600 font-medium text-sm">
+              <span className="mt-3 inline-block text-link font-medium text-sm hover:text-link-hover transition-colors">
                 View profile →
               </span>
             </Link>

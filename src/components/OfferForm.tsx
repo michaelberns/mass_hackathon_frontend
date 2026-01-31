@@ -30,8 +30,8 @@ export function OfferForm({ job, onSubmit, onSuccess }: OfferFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Make an Offer</h3>
+    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Make an Offer</h3>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -76,7 +76,7 @@ export function OfferForm({ job, onSubmit, onSuccess }: OfferFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full min-h-[44px] px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? 'Submitting...' : 'Submit Offer'}
         </button>

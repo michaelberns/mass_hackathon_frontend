@@ -53,33 +53,63 @@ function createInfoContent(
   job: JobMapItem,
   onViewJob: (id: string) => void
 ): HTMLElement {
+  const accent = '#d97706';
+  const accentHover = '#b45309';
   const wrap = document.createElement('div');
-  wrap.style.cssText = 'min-width:200px;padding:0;font-family:system-ui,sans-serif;';
-  const inner = document.createElement('div');
-  inner.style.cssText = 'padding:12px;';
-  const title = document.createElement('div');
-  title.style.cssText = 'font-weight:600;font-size:14px;margin-bottom:8px;color:#111;';
-  title.textContent = job.title;
-  const budget = document.createElement('div');
-  budget.style.cssText = 'font-size:13px;color:#2563eb;font-weight:600;margin-bottom:8px;';
-  budget.textContent = `$${job.budget}`;
+  wrap.style.cssText =
+    'min-width:240px;max-width:280px;padding:0;font-family:system-ui,-apple-system,sans-serif;' +
+    'background:#fff;border-radius:12px;overflow:hidden;' +
+    'box-shadow:0 10px 40px rgba(0,0,0,0.15),0 4px 12px rgba(0,0,0,0.08),0 0 0 1px rgba(0,0,0,0.04);';
+
   let thumb: HTMLImageElement | null = null;
   if (job.images && job.images[0]) {
     thumb = document.createElement('img');
     thumb.src = job.images[0];
     thumb.alt = job.title;
-    thumb.style.cssText = 'width:100%;height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;';
+    thumb.style.cssText =
+      'width:100%;height:140px;object-fit:cover;display:block;background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%);';
   }
+
+  const body = document.createElement('div');
+  body.style.cssText = 'padding:14px 16px;';
+
+  const title = document.createElement('div');
+  title.style.cssText =
+    'font-weight:700;font-size:15px;line-height:1.3;color:#0f172a;margin-bottom:10px;' +
+    'display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;';
+  title.textContent = job.title;
+
+  const budgetRow = document.createElement('div');
+  budgetRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;';
+  const budget = document.createElement('span');
+  budget.style.cssText =
+    `font-size:18px;font-weight:800;color:${accent};letter-spacing:-0.02em;`;
+  budget.textContent = `$${job.budget}`;
+  budgetRow.appendChild(budget);
+
   const btn = document.createElement('button');
-  btn.textContent = 'View Job';
+  btn.textContent = 'View Job →';
   btn.style.cssText =
-    'width:100%;padding:8px 12px;background:#2563eb;color:white;border:none;border-radius:6px;font-weight:600;font-size:13px;cursor:pointer;';
+    `width:100%;padding:10px 16px;background:${accent};color:#fff;border:none;border-radius:8px;` +
+    'font-weight:600;font-size:14px;cursor:pointer;transition:background 0.2s,transform 0.1s;' +
+    'box-shadow:0 2px 8px rgba(217,119,6,0.35);';
+  btn.addEventListener('mouseenter', () => {
+    btn.style.background = accentHover;
+    btn.style.transform = 'translateY(-1px)';
+    btn.style.boxShadow = '0 4px 12px rgba(217,119,6,0.4)';
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.background = accent;
+    btn.style.transform = 'translateY(0)';
+    btn.style.boxShadow = '0 2px 8px rgba(217,119,6,0.35)';
+  });
   btn.addEventListener('click', () => onViewJob(job.id));
-  inner.appendChild(title);
-  inner.appendChild(budget);
-  if (thumb) inner.appendChild(thumb);
-  inner.appendChild(btn);
-  wrap.appendChild(inner);
+
+  if (thumb) wrap.appendChild(thumb);
+  body.appendChild(title);
+  body.appendChild(budgetRow);
+  body.appendChild(btn);
+  wrap.appendChild(body);
   return wrap;
 }
 
